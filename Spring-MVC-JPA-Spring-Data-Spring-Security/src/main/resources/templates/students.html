@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" type="text/css" href="webjars/bootstrap/5.1.3/css/bootstrap.min.css">
+    <script src="webjars/bootstrap/5.1.3/js/bootstrap.bundle.js"></script>
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+    <title>Students Management</title>
+</head>
+<body>
+<nav class="navbar navbar-expand-sm bg-dark navbar-dark">
+    <div class="container-fluid">
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#collapsibleNavbar">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="collapsibleNavbar">
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/index}">Home</a>
+                </li>
+                <li sec:authorize="hasRole('ADMIN')" class="nav-item">
+                    <a class="nav-link" th:href="@{/addStudent}">Ajouter Etudiant</a>
+                </li>
+            </ul>
+        </div>
+        <ul class="navbar-nav me-2">
+            <li class="nav-item dropdown ">
+                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                    <span sec:authentication="name"></span>
+                </a>
+                <ul class="dropdown-menu me-2">
+                    <li><a class="dropdown-item" th:href="@{/logout}">Logout</a></li>
+                </ul>
+            </li>
+        </ul>
+    </div>
+</nav>
+<!--<div layout:fragment="content1">-->
+    <div class="container">
+        <div class="card mt-5">
+            <div class="card-header">
+                <h2>Students Managment</h2></div>
+            <div class="card-body">
+                <form class="d-flex mt-1" th:action="@{/index}" method="get">
+                    <input class="form-control me-2" type="text" name="keyword">
+                    <button class="btn btn-primary" type="submit">Recherche</button>
+                </form>
+                <table class="table table-bordered mt-3">
+                    <thead>
+                    <tr>
+                        <th>Nom</th>
+                        <th>Prenom</th>
+                        <th>Date de Naissance</th>
+                        <th>Email</th>
+                        <th>Genre</th>
+                        <th>En Regle</th>
+                        <th>Edit/Delete</th>
+                        <th>Abscence</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="student:${studentList}">
+                        <td th:text="${student.getNom()}"/>
+                        <td th:text="${student.getPrenom()}"/>
+                        <td th:text="${student.getDateNaissance()}"/>
+                        <td th:text="${student.getEmail()}"/>
+                        <td th:text="${student.getGenre()}"/>
+                        <td th:text="${student.isEnRegle()}"/>
+                        <td sec:authorize="hasRole('ADMIN')">
+                            <a onclick="return confirm('Etes-vous sure ?')" class="btn btn-danger" th:href="@{/delete/{id}(id=${student.id})}">Delete</a>
+                            <a class="btn btn-success" th:href="@{/edit/{id}(id=${student.id})}">Update</a>
+                        </td>
+                        <td sec:authorize="hasRole('ADMIN')">
+                            <a class="btn btn-success" th:href="@{/absence_edit/{id_student}(id_student=${student.id})}">Abscence</a>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+                <div class="container m-0">
+                    <ul class="nav nav-pills justify-content-center m-lg-1">
+            <span th:unless="${currentPage == 0}">
+                        <li>
+                          <a  class="btn btn-secondary"
+                              th:href="@{index(page=0,keyword=${keyword})}">First Page</a>
+                          <a class="btn btn-warning"
+                             th:href="@{index(page=${currentPage}-1,keyword=${keyword})}">Previous</a>
+                        </li>
+                    </span>
+
+                        <li th:each="page,status:${pages}" class="page-item ms-1"
+                            th:if="${(status.index > currentPage-4) and (status.index < currentPage+4)}">
+                            <a th:class="${status.index == currentPage}?'btn btn-primary':'btn btn-outline-primary'"
+                               th:text="${status.index}"
+                               th:href="@{index(page=${status.index})}">
+                            </a>
+                        </li>
+
+                        <span th:unless="${currentPage == lastPage}" >
+                            <li>
+                            <a class="btn btn-warning ms-1"
+                                th:href="@{index(page=${currentPage+1},keyword=${keyword})}">Next</a>
+                            <a  class="btn btn-secondary"
+                                th:href="@{index(page=${lastPage},keyword=${keyword})}"
+                                title="Last Page">Last</a>
+                            </li>
+                        </span>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+<!--</div>-->
+</body>
+</html>
